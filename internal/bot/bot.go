@@ -15,7 +15,7 @@ type Answer struct {
 
 type Message struct {
 	Text       string
-	AnswerChan chan Answer
+	AnswerChan chan *Answer
 	Ctx        context.Context
 }
 
@@ -26,6 +26,8 @@ type Bot struct {
 	processing bool
 	done       chan bool
 }
+
+type botHandlerFunc func(string) (*Answer, error)
 
 var commandRe = regexp.MustCompile(`^\/(\w+)\s*(.*)$`)
 
@@ -64,6 +66,10 @@ func (b *Bot) Stop() {
 
 func (b *Bot) processMessage(msg Message) {
 	b.log.Debugf("Processing message %+v", msg)
+	if msg.AnswerChan == nil {
+		b.log.Errorf("Message won't be processed, answer chan is nil")
+		return
+	}
 
 	cmd, rest, err := b.parseCommand(msg.Text)
 	if err != nil {
@@ -72,6 +78,13 @@ func (b *Bot) processMessage(msg Message) {
 	}
 
 	b.log.Infof("Command: %s, Rest: %s", cmd, rest)
+	answer, err := b.handleCommand(cmd, rest)
+	if err != nil {
+		b.log.Errorf("Unable to process command `%s`: %s", cmd, err.Error())
+		return
+	}
+
+	msg.AnswerChan <- answer
 }
 
 func (b *Bot) parseCommand(msg string) (string, string, error) {
@@ -86,10 +99,22 @@ func (b *Bot) parseCommand(msg string) (string, string, error) {
 
 	matches := res[0]
 	command := matches[1]
+
 	rest := ""
 	if len(matches) > 2 {
 		rest = matches[2]
 	}
 
 	return command, rest, nil
+}
+
+func (b *Bot) handleCommand(command, params string) (*Answer, error) {
+	switch strings.ToLower(command) {
+	case "start":
+		return b.botNotImplemented(params)
+	case "echo":
+		return b.botEcho(params)
+	default:
+		return nil, fmt.Errorf("unknown command: %s", command)
+	}
 }
