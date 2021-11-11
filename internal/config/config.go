@@ -13,8 +13,9 @@ var configPaths = []string{"/usr/local/etc/", "./configs/"}
 
 // Config struct with field name
 type Config struct {
-	LogFile  string `yaml:"log_file" env:"CONTACTUS_LOG_FILE" env-default:""`
-	LogLevel string `yaml:"log_level" env:"CONTACTUS_LOG_LEVEL" env-default:"info"`
+	LogFile          string `yaml:"log_file" env:"YB_LOG_FILE" env-default:""`
+	LogLevel         string `yaml:"log_level" env:"YB_LOG_LEVEL" env-default:"info"`
+	TelegramBotToken string `yaml:"telegram_bot_token" env:"YB_TELEGRAM_BOT_TOKEN"`
 }
 
 func ReadConfig() *Config {
@@ -33,7 +34,7 @@ func getConfigFiles() []string {
 	var filename string
 
 	if filename == "" {
-		filename = os.Getenv("CONTACTUS_CONFIG")
+		filename = os.Getenv("YB_CONFIG")
 	}
 
 	if filename != "" {

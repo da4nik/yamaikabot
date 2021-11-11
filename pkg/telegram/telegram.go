@@ -1,9 +1,11 @@
 package telegram
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -12,7 +14,7 @@ type Client struct {
 	client *http.Client
 }
 
-const botURL = "https://api.telegram.org/bot"
+const botURL = "https://api.telegram.org"
 
 func NewClient(botToken string) *Client {
 	tr := &http.Transport{
@@ -26,14 +28,17 @@ func NewClient(botToken string) *Client {
 }
 
 func (c *Client) do(method string, params map[string]interface{}) ([]byte, error) {
-
-	json, err := json.Marshal(params)
+	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, err
 	}
 
-	req := c.request(method)
-	res, err := client.Do(req)
+	req, err := c.request(method, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +55,17 @@ func (c *Client) do(method string, params map[string]interface{}) ([]byte, error
 	return body, nil
 }
 
-func (c *Client) request(method string) *http.Request {
-	req := &http.NewRequest("POST", c.url(method), nil)
+func (c *Client) request(method string, body *bytes.Buffer) (*http.Request, error) {
+	req, err := http.NewRequest("POST", c.url(method), body)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header = http.Header{
 		"Content-Type": []string{"application/json"},
 	}
-	return req
+
+	return req, nil
 }
 
 func (c *Client) url(method string) string {
