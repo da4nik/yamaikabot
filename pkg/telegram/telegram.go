@@ -27,7 +27,7 @@ func NewClient(botToken string) *Client {
 	}
 }
 
-func (c *Client) do(method string, params map[string]interface{}) ([]byte, error) {
+func (c *Client) do(method string, params interface{}) ([]byte, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, err

@@ -40,28 +40,22 @@ func New(queueSize int, log logger.Logger) *Bot {
 	}
 }
 
-func (b *Bot) Start() {
+func (b *Bot) Start(ctx context.Context) {
 	b.log.Infof("Starting ...")
 	go func() {
 		b.log.Infof("Started.")
-		for b.processing {
+		processing := true
+		for processing {
 			select {
-			case <-b.done:
-				b.processing = false
+			case <-ctx.Done():
+				processing = false
 			case msg := <-b.In:
 				b.log.Debugf("Got message: %+v", msg)
 				go b.processMessage(msg)
 			}
 		}
-		b.log.Infof("Stopping ...")
-		b.done <- true
+		b.log.Infof("Stopped.")
 	}()
-}
-
-func (b *Bot) Stop() {
-	b.done <- true
-	<-b.done
-	b.log.Infof("Stopped.")
 }
 
 func (b *Bot) processMessage(msg Message) {
