@@ -43,13 +43,17 @@ func (c *Client) do(method string, params interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("unexpected return code: %s", res.Status)
-	}
+	fmt.Printf("[Telegram] Got response: %+v\n", res)
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	fmt.Printf("Body: %s", body)
+
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("unexpected return code: %s\n", res.Status)
 	}
 
 	return body, nil

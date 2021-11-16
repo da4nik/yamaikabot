@@ -20,7 +20,7 @@ type Message struct {
 }
 
 type Bot struct {
-	In chan Message
+	In chan *Message
 
 	log        logger.Logger
 	processing bool
@@ -33,7 +33,7 @@ var commandRe = regexp.MustCompile(`^\/(\w+)\s*(.*)$`)
 
 func New(queueSize int, log logger.Logger) *Bot {
 	return &Bot{
-		In:         make(chan Message, queueSize),
+		In:         make(chan *Message, queueSize),
 		log:        log,
 		processing: true,
 		done:       make(chan bool),
@@ -58,7 +58,7 @@ func (b *Bot) Start(ctx context.Context) {
 	}()
 }
 
-func (b *Bot) processMessage(msg Message) {
+func (b *Bot) processMessage(msg *Message) {
 	b.log.Debugf("Processing message %+v", msg)
 	if msg.AnswerChan == nil {
 		b.log.Errorf("Message won't be processed, answer chan is nil")

@@ -23,11 +23,12 @@ type Chat struct {
 
 // TODO: Not finished, only required field were added
 type Message struct {
-	MessageId  int  `json:"message_id"`
-	From       User `json:"from"`
-	SenderChat Chat `json:"sender_chat"`
-	Date       int  `json:"date"`
-	Chat       Chat `json:"chat"`
+	MessageId  int    `json:"message_id"`
+	From       User   `json:"from"`
+	SenderChat Chat   `json:"sender_chat"`
+	Date       int    `json:"date"`
+	Chat       Chat   `json:"chat"`
+	Text       string `json:"text"`
 }
 
 // TODO: Not finished, only required field were added
@@ -35,4 +36,5 @@ type Update struct {
 	UpdateId      int     `json:"update_id"`
 	Message       Message `json:"message"`
 	EditedMessage Message `json:"edited_message"`
+
 }

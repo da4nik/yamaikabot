@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	tga "github.com/da4nik/yamaikabot/internal/adapters/telegram_adapter"
 	"github.com/da4nik/yamaikabot/internal/bot"
 	"github.com/da4nik/yamaikabot/internal/config"
-	"github.com/da4nik/yamaikabot/internal/listener"
 	"github.com/da4nik/yamaikabot/internal/logger"
 	"os"
 	"os/signal"
@@ -20,15 +20,21 @@ func main() {
 	// Creating the bot
 	theBot := bot.New(10, log.WithModule("bot"))
 
-	listeners, err := listener.New(nil, log.WithModule("listener"))
+	tg, err := tga.New(tga.TelegramAdapterOptions{
+		Log:         log.WithModule("telegram_adapter"),
+		LongPooling: true,
+		BotToken:    conf.TelegramBotToken,
+		WebhookURL:  "https://makstep.ru/",
+		OutputChan:  theBot.In,
+	})
 	if err != nil {
-		log.Errorf("Unable to create listeners: %s", err.Error())
+		log.Errorf("Unable to start telegram adapter: %s", err.Error())
 		os.Exit(1)
 	}
 
 	// Run telegram bot routine
-	// Run viber bot routine
-	listeners.Start(ctx)
+	tg.Start(ctx)
+
 	// Run bot itself
 	theBot.Start(ctx)
 
@@ -39,7 +45,7 @@ func main() {
 	// }
 	// fmt.Printf("start %+v\n", <-answerChan)
 
-	theBot.In <- bot.Message{
+	theBot.In <- &bot.Message{
 		Text:       "/echo hello there !!!",
 		AnswerChan: answerChan,
 	}
