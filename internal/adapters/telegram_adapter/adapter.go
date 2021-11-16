@@ -3,6 +3,7 @@ package telegram_adapter
 import (
 	"context"
 	"fmt"
+
 	"github.com/da4nik/yamaikabot/internal/bot"
 	"github.com/da4nik/yamaikabot/internal/logger"
 	"github.com/da4nik/yamaikabot/pkg/telegram"
@@ -64,6 +65,18 @@ func (ta *TelegramAdapter) Start(ctx context.Context) {
 
 func (ta *TelegramAdapter) startLongPooling(ctx context.Context) {
 	ta.log.Infof("Starting long pooling telegram updates")
+	for {
+		update, err := ta.tgClient.GetUpdates(telegram.GetUpdatesRequest{
+			Timeout:        30,
+			AllowedUpdates: []string{"message"},
+		})
+		if err != nil {
+			ta.log.Errorf("Unable to get update: %s", err.Error())
+			continue
+		}
+
+		ta.log.Debugf("Got update via LP: %+v", update)
+	}
 }
 
 func (ta *TelegramAdapter) startWebhooks(ctx context.Context) {

@@ -61,18 +61,23 @@ type GetUpdatesRequest struct {
 	AllowedUpdates []string `json:"allowed_updates,omitempty"` // message, edited_channel_post, callback_query
 }
 
-func (c *Client) GetUpdates(params GetUpdatesRequest) ([]Update, error) {
-	respBody, err := c.do("getMe", params)
+type GetUpdatesResponse struct {
+	Ok      bool     `json:"ok"`
+	Updates []Update `json:"result"`
+}
+
+func (c *Client) GetUpdates(params GetUpdatesRequest) (*GetUpdatesResponse, error) {
+	respBody, err := c.do("getUpdates", params)
 	if err != nil {
 		return nil, err
 	}
 
-	var response []Update
+	var response GetUpdatesResponse
 	if err := json.Unmarshal(respBody, &response); err != nil {
 		return nil, err
 	}
 
-	return response, nil
+	return &response, nil
 }
 
 type SendMessageRequest struct {

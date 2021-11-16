@@ -3,9 +3,10 @@ package bot
 import (
 	"context"
 	"fmt"
-	"github.com/da4nik/yamaikabot/internal/logger"
 	"regexp"
 	"strings"
+
+	"github.com/da4nik/yamaikabot/internal/logger"
 )
 
 type Answer struct {
