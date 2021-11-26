@@ -81,7 +81,7 @@ func (c *Client) GetUpdates(params GetUpdatesRequest) (*GetUpdatesResponse, erro
 }
 
 type SendMessageRequest struct {
-	ChatId string `json:"chat_id"`
+	ChatId int    `json:"chat_id"`
 	Text   string `json:"text"`
 }
 

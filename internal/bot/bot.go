@@ -73,7 +73,7 @@ func (b *Bot) processMessage(msg *Message) {
 	}
 
 	b.log.Infof("Command: %s, Rest: %s", cmd, rest)
-	answer, err := b.handleCommand(cmd, rest)
+	answer, err := b.handleCommand(msg.Ctx, cmd, rest)
 	if err != nil {
 		b.log.Errorf("Unable to process command `%s`: %s", cmd, err.Error())
 		return
@@ -103,12 +103,12 @@ func (b *Bot) parseCommand(msg string) (string, string, error) {
 	return command, rest, nil
 }
 
-func (b *Bot) handleCommand(command, params string) (*Answer, error) {
+func (b *Bot) handleCommand(ctx context.Context, command, params string) (*Answer, error) {
 	switch strings.ToLower(command) {
 	case "start":
 		return b.botNotImplemented(params)
 	case "echo":
-		return b.botEcho(params)
+		return b.botEcho(ctx, params)
 	default:
 		return nil, fmt.Errorf("unknown command: %s", command)
 	}
